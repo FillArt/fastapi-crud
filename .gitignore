@@ -1,0 +1,51 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+.env/
+
+# dotenv files with secrets
+.env
+*.env
+
+# VSCode and IDE configs
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# macOS and system files
+.DS_Store
+
+# Test coverage
+htmlcov/
+coverage.xml
+*.cover
+
+# Pytest
+.pytest_cache/
+
+# MyPy and other linters
+.mypy_cache/
+.dmypy.json
+.pyre/
+
+# Database or build artifacts
+*.sqlite3
+*.db
+build/
+dist/
+*.egg-info/
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Poetry
+poetry.lock
+
+# Pipenv
+Pipfile.lock
