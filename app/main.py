@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
 
-class Post(BaseModel):
+class PostSchema(BaseModel):
     title: str
     description: str
     content: str
@@ -43,7 +43,7 @@ async def get_posts():
     raise HTTPException(status_code=404, detail="No posts found")
 
 @app.post("/posts", tags=["Posts"], summary="Post creation")
-async def create_post(post: Post):
+async def create_post(post: PostSchema):
     new_post = {
         "id": len(posts) + 1,
         "title": post.title,
