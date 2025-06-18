@@ -1,7 +1,4 @@
-from fastapi import HTTPException
-from app.db.fake_db import posts
 from app.schemas.posts import PostBase
-
 from app.models import Post
 from sqlalchemy.orm import Session
 

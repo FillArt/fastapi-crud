@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from app.api.v1 import posts
+from app.api.v1 import posts, contact
 import uvicorn
 
 app = FastAPI()
-
+app.include_router(contact.router, prefix="/api/v1/contact", tags=["Contact"])
 app.include_router(posts.router, prefix="/api/v1/posts", tags=["Posts"])
 
 if __name__ == '__main__':
