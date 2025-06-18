@@ -1,11 +1,14 @@
 from pydantic import BaseModel
 
-class PostSchema(BaseModel):
+class PostBase(BaseModel):
     title: str
     description: str
     content: str
 
-class PostResponseSchema(PostSchema):
+class PostCreate(PostBase):
+    pass
+
+class Post(PostBase):
     id: int
 
     class Config:
