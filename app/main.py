@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.v1 import posts, contact
+from app.api.v1 import posts, contact, categories
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import Base, engine
 
@@ -23,6 +23,7 @@ app.add_middleware(
 
 app.include_router(contact.router, prefix="/api/v1/contact", tags=["Contact"])
 app.include_router(posts.router, prefix="/api/v1/posts", tags=["Posts"])
+app.include_router(categories.router, prefix="/api/v1/categories", tags=["Categories"])
 
 if __name__ == '__main__':
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=False)
