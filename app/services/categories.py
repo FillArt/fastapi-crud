@@ -14,3 +14,16 @@ def create_category(db: Session, category: CategoryCreate):
     db.commit()
     db.refresh(db_category)
     return db_category
+
+def get_all(db: Session):
+    return db.query(Category).all()
+
+def delete_category(db: Session, id: int):
+    category_queryset = db.query(Category).filter(Category.id == id).first()
+
+    if not category_queryset:
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    db.delete(category_queryset)
+    db.commit()
+    return category_queryset
