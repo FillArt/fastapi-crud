@@ -19,3 +19,6 @@ async def all_contacts(db: Session = Depends(get_db)):
     if contacts is None:
         raise HTTPException(status_code=404, detail="No contacts found")
     return contacts
+
+# @router.post("/upload")
+# async def upload_contact_file(request: ContactCreate, db: Session = Depends(get_db)):
