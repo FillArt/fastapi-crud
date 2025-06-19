@@ -11,3 +11,4 @@ class Contact(Base):
     institution = Column(String, nullable=True)
     about = Column(String, nullable=True)
     file_path = Column(String, nullable=True)
+

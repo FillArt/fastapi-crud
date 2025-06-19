@@ -49,3 +49,7 @@ poetry.lock
 
 # Pipenv
 Pipfile.lock
+
+
+documents/*
+!documents/.gitkeep

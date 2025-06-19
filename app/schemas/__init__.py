@@ -1,2 +1,2 @@
 from .posts import PostCreate, Post, PostBase
-from .contact import ContactCreate
+from .contact import ContactCreate, ContactRead
