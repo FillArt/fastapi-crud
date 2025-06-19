@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from app.api.v1 import posts, contact
 from fastapi.middleware.cors import CORSMiddleware
+from app.db.database import Base, engine
 
 import uvicorn
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
