@@ -11,7 +11,7 @@ def get_posts(db: Session):
 def create_post(db: Session, data: PostCreate):
     category_ids = data.category_ids
 
-    categories = db.query(Category).filter(Category.id.in_(category_ids)).all()
+    categories = db.query(Category).filter(Category.category_id.in_(category_ids)).all()
 
     if len(categories) != len(set(category_ids)):
         raise HTTPException(status_code=400, detail="One or more categories not found")

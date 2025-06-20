@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
+from app.schemas.posts import PostOut
 from app.services.posts import get_posts, create_post, get_post, delete_post, update_post
 from app.schemas import PostCreate, Post
 from app.db.database import get_db
@@ -12,7 +13,7 @@ router = APIRouter()
 def read_posts(db: Session = Depends(get_db)):
     return get_posts(db)
 
-@router.post("/", response_model=Post, tags=["Posts"], summary="Create a new post")
+@router.post("/", response_model=PostOut, tags=["Posts"], summary="Create a new post")
 def create_new_post(post: PostCreate, db: Session = Depends(get_db)):
     return create_post(db, post)
 
