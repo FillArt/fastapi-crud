@@ -33,7 +33,6 @@ def create_post(db: Session, data: PostCreate):
 
     return post_instance
 
-
 def get_post(db: Session, id: int):
     return db.query(Post).filter(Post.id == id).first()
 

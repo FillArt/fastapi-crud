@@ -10,6 +10,7 @@ class PostBase(BaseModel):
     description: str
     content: str
     category_ids: List[int] = []
+    image_path: str
 
 
 class PostCreate(PostBase):
@@ -27,6 +28,7 @@ class PostOut(BaseModel):
     title: str
     content: str
     categories: List[CategoryOut]
+    image_path: str
 
     class Config:
         orm_mode = True
