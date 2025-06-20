@@ -9,7 +9,10 @@ def create_category(db: Session, category: CategoryCreate):
     if existing:
         raise HTTPException(status_code=400, detail="Category already exists")
 
-    db_category = Category(name=category.name)
+    db_category = Category(
+        category_id=category.category_id,
+        name=category.name
+    )
     db.add(db_category)
     db.commit()
     db.refresh(db_category)
@@ -19,7 +22,7 @@ def get_all(db: Session):
     return db.query(Category).all()
 
 def delete_category(db: Session, id: int):
-    category_queryset = db.query(Category).filter(Category.id == id).first()
+    category_queryset = db.query(Category).filter(Category.category_id == id).first()
 
     if not category_queryset:
         raise HTTPException(status_code=404, detail="Category not found")

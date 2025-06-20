@@ -6,7 +6,7 @@ from app.models.association import post_category
 class Category(Base):
     __tablename__ = "categories"
 
-    id = Column(Integer, primary_key=True, index=True)
+    category_id = Column(Integer, primary_key=True, autoincrement=False)
     name = Column(String, unique=True, index=True)
 
     posts = relationship("Post", secondary=post_category, back_populates="categories")
