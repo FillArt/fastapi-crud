@@ -14,14 +14,13 @@ class PostBase(BaseModel):
     image_path: Optional[str] = None
 
 
+class PostUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    content: Optional[str] = None
+
 class PostCreate(PostBase):
     pass
-
-class Post(PostBase):
-    id: int
-
-    class Config:
-        from_attributes = True
 
 class PostOut(BaseModel):
     id: int
