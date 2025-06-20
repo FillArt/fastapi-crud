@@ -11,6 +11,6 @@ class Post(Base):
     title = Column(String, index=True)
     description = Column(String)
     content = Column(String)
-    img_path = Column(String)
+    image_path = Column(String)
 
     categories = relationship("Category", secondary=post_category, back_populates="posts")

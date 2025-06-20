@@ -1,4 +1,7 @@
-from fastapi import HTTPException
+import os
+from uuid import uuid4
+
+from fastapi import HTTPException, UploadFile
 
 from app.schemas.posts import PostBase, PostCreate
 from app.models import Post, Category
@@ -51,3 +54,24 @@ def delete_post(db: Session, id: int):
         db.delete(post_queryset)
         db.commit()
     return post_queryset
+
+
+async def picture_upload(db: Session, post_id: int, file: UploadFile):
+    post = db.query(Post).filter(Post.id == post_id).first()
+
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+
+    os.makedirs("blog", exist_ok=True)
+    ext = os.path.splitext(file.filename)[1]
+    unique_filename = f"{uuid4().hex}{ext}"
+    file_path = os.path.join("blog", unique_filename)
+
+    with open(file_path, "wb") as f:
+        f.write(await file.read())
+
+    post.image_path = file_path
+    db.commit()
+    db.refresh(post)
+    return post

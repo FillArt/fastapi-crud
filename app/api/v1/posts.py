@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile
+from fastapi.params import File
 from sqlalchemy.orm import Session
 from typing import List
 
 from app.schemas.posts import PostOut
-from app.services.posts import get_posts, create_post, get_post, delete_post, update_post
+from app.services.posts import get_posts, create_post, get_post, delete_post, update_post, picture_upload
 from app.schemas import PostCreate, Post
 from app.db.database import get_db
 
@@ -23,6 +24,10 @@ def read_post(id: int, db: Session = Depends(get_db)):
     if post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     return post
+
+@router.post("/{id}/upload", response_model=PostOut, tags=["Posts"], summary="Upload picture for post by ID")
+async def upload_picture_by_id(id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    return await picture_upload(db, id, file)
 
 @router.delete("/{id}", tags=["Posts"], summary="Delete a post by ID")
 def delete_post_by_id(id: int, db: Session = Depends(get_db)):
