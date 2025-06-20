@@ -10,7 +10,7 @@ from app.db.database import get_db
 
 router = APIRouter()
 
-@router.get("/", response_model=List[Post], tags=["Posts"], summary="Get all posts")
+@router.get("/", response_model=List[PostOut], tags=["Posts"], summary="Get all posts")
 def read_posts(db: Session = Depends(get_db)):
     return get_posts(db)
 
@@ -18,7 +18,7 @@ def read_posts(db: Session = Depends(get_db)):
 def create_new_post(post: PostCreate, db: Session = Depends(get_db)):
     return create_post(db, post)
 
-@router.get("/{id}", response_model=Post, tags=["Posts"], summary="Get post by ID")
+@router.get("/{id}", response_model=PostOut, tags=["Posts"], summary="Get post by ID")
 def read_post(id: int, db: Session = Depends(get_db)):
     post = get_post(db, id)
     if post is None:

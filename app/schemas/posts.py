@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from pydantic import BaseModel
+from datetime import datetime
 
 from app.schemas.category import CategoryOut
 
@@ -25,9 +26,11 @@ class Post(PostBase):
 class PostOut(BaseModel):
     id: int
     title: str
+    description: str
     content: str
     categories: List[CategoryOut]
     image_path: Optional[str] = None
+    created_at: datetime
 
     class Config:
         orm_mode = True
