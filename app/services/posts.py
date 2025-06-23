@@ -13,7 +13,6 @@ def get_posts(db: Session):
 
 def create_post(db: Session, data: PostCreate):
     category_ids = data.category_ids
-
     categories = db.query(Category).filter(Category.category_id.in_(category_ids)).all()
 
     if len(categories) != len(set(category_ids)):
@@ -25,7 +24,8 @@ def create_post(db: Session, data: PostCreate):
     post_instance = Post(
         title=post_data.get("title"),
         description=post_data.get("description"),
-        content=post_data.get("content"),
+        image_path=post_data.get("image_path"),
+        content_blocks=post_data.get("content_blocks", [])
     )
 
     post_instance.categories = categories
