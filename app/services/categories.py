@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 from app.schemas.category import CategoryCreate, CategoryOut
 from app.models import Category, post_category, Post
@@ -20,7 +20,24 @@ def create_category(db: Session, category: CategoryCreate):
     return db_category
 
 def get_all(db: Session):
-    return db.query(Category).all()
+    results = (
+        db.query(
+            Category,
+            func.count(post_category.c.post_id).label("post_count")
+        )
+        .outerjoin(post_category, Category.category_id == post_category.c.category_id)
+        .group_by(Category.category_id, Category.name)
+        .all()
+    )
+
+    return [
+        {
+            "category_id": category.category_id,
+            "name": category.name,
+            "post_count": post_count
+        }
+        for category, post_count in results
+    ]
 
 def get_post_ids_by_category(db: Session, category_id: int):
     stmt = (
