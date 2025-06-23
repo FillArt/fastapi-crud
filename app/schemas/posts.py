@@ -5,6 +5,10 @@ from datetime import datetime
 from app.schemas.category import CategoryOut
 
 
+class ListValue(BaseModel):
+    list: List[str]
+
+
 class TextValue(BaseModel):
     content: str
 
@@ -25,12 +29,12 @@ class ImageValue(BaseModel):
     alt: Optional[str] = None
 
 
-ValueType = Union[TextValue, TitleValue, QuoteValue, ImageValue]
+ValueType = Union[TextValue, TitleValue, QuoteValue, ImageValue, ListValue]
 
 
 class ContentBlock(BaseModel):
     id: int
-    type: Literal["text", "title", "quote", "image"]
+    type: Literal["text", "title", "quote", "image", "list"]
     value: ValueType
     order: int
 
