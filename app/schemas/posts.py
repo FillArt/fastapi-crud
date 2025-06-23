@@ -20,6 +20,8 @@ class QuoteValue(BaseModel):
 
 class ImageValue(BaseModel):
     url: str
+    title: Optional[str] = None
+    text: Optional[str] = None
     alt: Optional[str] = None
 
 
