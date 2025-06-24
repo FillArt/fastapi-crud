@@ -23,6 +23,8 @@ def contact_create(db: Session, request: ContactCreate):
 def get_all_contacts(db: Session):
     return db.query(Contact).all()
 
+def get_by_id(contact_id: int, db: Session):
+    return db.get(Contact, contact_id)
 
 async def contact_upload(db: Session, contact_id: int, file: UploadFile):
     contact = db.get(Contact, contact_id)
