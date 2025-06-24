@@ -36,7 +36,7 @@ def delete_post_by_id(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
-@router.put("/{id}", response_model=PostOut, tags=["Posts"], summary="Update a post by ID")
+@router.patch("/{id}", response_model=PostOut, tags=["Posts"], summary="Update a post by ID")
 def update_post_by_id(id: int, post: PostUpdate, db: Session = Depends(get_db)):
     updated_post = update_post(db, id, post)
     if updated_post is None:
