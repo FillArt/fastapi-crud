@@ -95,6 +95,8 @@ def create_content(db: Session, post_id: int, content_data: PostContentCreate):
 def get_content(db: Session, post_id: int):
     return db.query(PostContent).filter(PostContent.post_id == post_id).all()
 
+def get_content_one(db: Session, content_id: int):
+    return db.query(PostContent).filter(PostContent.pk_id == content_id).first()
 
 def delete_all_post_content(db: Session, post_id: int):
     count = db.query(PostContent).filter(PostContent.post_id == post_id).delete(synchronize_session=False)
