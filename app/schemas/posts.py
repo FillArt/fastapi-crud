@@ -47,6 +47,9 @@ class ListValue(BaseModel):
 
 ValueType = Union[TextValue, TitleValue, QuoteValue, ImageValue, ListValue]
 
+class MessageResponse(BaseModel):
+    detail: str
+
 class PostContentBase(BaseModel):
     type: ContentType
     value: ValueType

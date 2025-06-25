@@ -96,6 +96,14 @@ def get_content(db: Session, post_id: int):
     return db.query(PostContent).filter(PostContent.post_id == post_id).all()
 
 
+def delete_all_post_content(db: Session, post_id: int):
+    count = db.query(PostContent).filter(PostContent.post_id == post_id).delete(synchronize_session=False)
+    if count == 0:
+        return None
+
+    db.commit()
+    return {"detail": f"Deleted {count} content block(s)"}
+
 def delete_content(db: Session, content_id: int):
     row = db.query(PostContent).filter(PostContent.pk_id == content_id).first()
     if row is None:
