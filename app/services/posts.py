@@ -46,6 +46,7 @@ def update_post(db: Session, post_id: int, data: PostUpdate):
 def delete_post(db: Session, post_id: int):
     post_queryset = db.query(Post).filter(Post.pk_id == post_id).first()
     if post_queryset:
+        delete_all_post_content(db, post_id)
         db.delete(post_queryset)
         db.commit()
     return post_queryset

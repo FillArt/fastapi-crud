@@ -6,8 +6,6 @@ from app.routes.v1 import posts, contact, categories
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import Base, engine
 
-
-
 import uvicorn
 Base.metadata.create_all(bind=engine)
 

@@ -87,7 +87,7 @@ def delete_all_content_for_post(post_id: int, db: Session = Depends(get_db)):
     return count
 
 
-@router.patch("/{post_id}/{content_id}/content/", response_model=PostContentOut, tags=["Posts"], summary="Delete a content by ID content")
+@router.patch("/{post_id}/{content_id}/content/", response_model=PostContentOut, tags=["Posts"], summary="Update a content by ID content")
 def update_content_for_post( content_id: int, data: PostContentUpdate, post_id: int, db: Session = Depends(get_db)):
     content = update_content(db, content_id, data)
     if content is None:
