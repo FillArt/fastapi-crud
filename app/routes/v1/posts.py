@@ -6,7 +6,7 @@ from typing import List
 from app.models.posts import PostContent
 from app.schemas.posts import PostOut, PostUpdate, PostContentOut, PostContentCreate
 from app.services.posts import get_posts, create_post, get_post, delete_post, update_post, picture_upload, \
-    create_content, get_content
+    create_content, get_content, delete_content
 from app.schemas import PostCreate
 from app.db.database import get_db
 
@@ -56,7 +56,16 @@ def create_content_for_post(
         raise HTTPException(status_code=404, detail="Post not found")
     return new_content
 
-@router.get("/{post_id}/content/", response_model=List[PostContentOut], tags=["Posts"], summary="Get content by ID")
+@router.get("/{post_id}/content/", response_model=List[PostContentOut], tags=["Posts"], summary="Get all content by ID post")
 def get_content_for_post(post_id: int, db: Session = Depends(get_db)):
     post_content = get_content(db, post_id)
+    if not post_content:
+        return []
     return post_content
+
+@router.delete("/{post_id}/{content_id}/content/", response_model=PostContentOut, tags=["Posts"], summary="Delete a content by ID content")
+def delete_content_for_post( content_id: int, post_id: int, db: Session = Depends(get_db)):
+    content = delete_content(db, content_id)
+    if content is None:
+        raise HTTPException(status_code=404, detail="Content not found")
+    return content

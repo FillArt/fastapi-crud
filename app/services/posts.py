@@ -93,5 +93,15 @@ def create_content(db: Session, post_id: int, content_data: PostContentCreate):
     return new_content
 
 def get_content(db: Session, post_id: int):
-    post_content = db.query(PostContent).filter(PostContent.post_id == post_id).all()
-    return post_content
+    return db.query(PostContent).filter(PostContent.post_id == post_id).all()
+
+
+def delete_content(db: Session, content_id: int):
+    row = db.query(PostContent).filter(PostContent.pk_id == content_id).first()
+    if row is None:
+        return None
+
+    db.delete(row)
+    db.commit()
+    return row
+
