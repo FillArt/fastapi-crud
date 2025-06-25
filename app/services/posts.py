@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Post
 from app.models.posts import PostContent
-from app.schemas.posts import PostCreate, PostUpdate, PostContentCreate
+from app.schemas.posts import PostCreate, PostUpdate, PostContentCreate, PostContentUpdate
 
 
 def get_posts(db: Session):
@@ -115,3 +115,15 @@ def delete_content(db: Session, content_id: int):
     db.commit()
     return row
 
+def update_content(db: Session, content_id: int, data: PostContentUpdate):
+    content_instance = db.query(PostContent).filter(PostContent.pk_id == content_id).first()
+    if not content_instance:
+        return None
+
+    update_data = data.model_dump(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(content_instance, key, value)
+
+    db.commit()
+    db.refresh(content_instance)
+    return content_instance

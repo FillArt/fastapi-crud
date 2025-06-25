@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from app.models.posts import PostContent
-from app.schemas.posts import PostOut, PostUpdate, PostContentOut, PostContentCreate, MessageResponse
+from app.schemas.posts import PostOut, PostUpdate, PostContentOut, PostContentCreate, MessageResponse, PostContentUpdate
 from app.services.posts import get_posts, create_post, get_post, delete_post, update_post, picture_upload, \
-    create_content, get_content, delete_content, delete_all_post_content, get_content_one
+    create_content, get_content, delete_content, delete_all_post_content, get_content_one, update_content
 from app.schemas import PostCreate
 from app.db.database import get_db
 
@@ -85,3 +85,11 @@ def delete_all_content_for_post(post_id: int, db: Session = Depends(get_db)):
     if count is None:
         raise HTTPException(status_code=404, detail="No content found for this post")
     return count
+
+
+@router.patch("/{post_id}/{content_id}/content/", response_model=PostContentOut, tags=["Posts"], summary="Delete a content by ID content")
+def update_content_for_post( content_id: int, data: PostContentUpdate, post_id: int, db: Session = Depends(get_db)):
+    content = update_content(db, content_id, data)
+    if content is None:
+        raise HTTPException(status_code=404, detail="Content not found")
+    return content

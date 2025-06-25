@@ -55,6 +55,11 @@ class PostContentBase(BaseModel):
     value: ValueType
     order: int
 
+class PostContentUpdate(BaseModel):
+    type: Optional[ContentType] = None
+    value: Optional[ValueType] = None
+    order: Optional[int] = None
+
 class PostContentCreate(PostContentBase):
     pass
 
