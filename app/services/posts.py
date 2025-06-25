@@ -2,11 +2,11 @@ import os
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile
-
-from app.models.posts import PostContent
-from app.schemas.posts import PostBase, PostCreate, PostUpdate, PostContentCreate
-from app.models import Post, Category
 from sqlalchemy.orm import Session
+
+from app.models import Post
+from app.models.posts import PostContent
+from app.schemas.posts import PostCreate, PostUpdate, PostContentCreate
 
 
 def get_posts(db: Session):
@@ -91,3 +91,7 @@ def create_content(db: Session, post_id: int, content_data: PostContentCreate):
     db.commit()
     db.refresh(new_content)
     return new_content
+
+def get_content(db: Session, post_id: int):
+    post_content = db.query(PostContent).filter(PostContent.post_id == post_id).all()
+    return post_content

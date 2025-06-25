@@ -1,12 +1,10 @@
 import enum
 from sqlalchemy import Enum as SqlEnum
 
-
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB, ARRAY
 
 from datetime import datetime, timezone
-
 from app.db.database import Base
 
 
