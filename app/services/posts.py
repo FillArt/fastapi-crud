@@ -3,7 +3,8 @@ from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile
 
-from app.schemas.posts import PostBase, PostCreate, PostUpdate
+from app.models.posts import PostContent
+from app.schemas.posts import PostBase, PostCreate, PostUpdate, PostContentCreate
 from app.models import Post, Category
 from sqlalchemy.orm import Session
 
@@ -73,3 +74,20 @@ async def picture_upload(db: Session, post_id: int, file: UploadFile):
     db.refresh(post)
 
     return post
+
+def create_content(db: Session, post_id: int, content_data: PostContentCreate):
+    post = db.query(Post).filter(Post.pk_id == post_id).first()
+    if not post:
+        return None
+
+    new_content = PostContent(
+        post_id=post_id,
+        type=content_data.type,
+        value=content_data.value.dict(),
+        order=content_data.order,
+    )
+
+    db.add(new_content)
+    db.commit()
+    db.refresh(new_content)
+    return new_content

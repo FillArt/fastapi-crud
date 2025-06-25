@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
-from fastapi.params import File
+from fastapi.params import File, Path, Body
 from sqlalchemy.orm import Session
 from typing import List
 
-from app.schemas.posts import PostOut, PostUpdate
-from app.services.posts import get_posts, create_post, get_post, delete_post, update_post, picture_upload
+from app.models.posts import PostContent
+from app.schemas.posts import PostOut, PostUpdate, PostContentOut, PostContentCreate
+from app.services.posts import get_posts, create_post, get_post, delete_post, update_post, picture_upload, \
+    create_content
 from app.schemas import PostCreate
 from app.db.database import get_db
 
@@ -42,3 +44,14 @@ def update_post_by_id(id: int, post: PostUpdate, db: Session = Depends(get_db)):
     if updated_post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     return updated_post
+
+@router.post("/content/{post_id}", response_model=PostContentOut, tags=["Posts"], summary="Create a new content")
+def create_content_for_post(
+    post_id: int = Path(..., description="ID поста"),
+    content: PostContentCreate = Body(...),
+    db: Session = Depends(get_db)
+):
+    new_content = create_content(db, post_id, content)
+    if new_content is None:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return new_content
