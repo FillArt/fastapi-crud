@@ -2,6 +2,7 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from fastapi.params import File
+from fastapi_pagination import paginate, Page
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
@@ -12,9 +13,9 @@ from app.services.posts import get_posts, create_post, get_post, delete_post, up
 router = APIRouter()
 
 
-@router.get("/", response_model=List[PostOut], tags=["Posts"], summary="Get all posts")
+@router.get("/", response_model=Page[PostOut], tags=["Posts"], summary="Get all posts")
 def read_posts(db: Session = Depends(get_db)):
-    return get_posts(db)
+    return paginate(get_posts(db))
 
 
 @router.post("/", response_model=PostOut, tags=["Posts"], summary="Create a new post")
@@ -25,6 +26,7 @@ def create_new_post(post: PostCreate, db: Session = Depends(get_db)):
 @router.get("/{pk_id}", response_model=PostOut, tags=["Posts"], summary="Get post by ID")
 def read_post(pk_id: int, db: Session = Depends(get_db)):
     post = get_post(db, pk_id)
+
     if post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     return post
