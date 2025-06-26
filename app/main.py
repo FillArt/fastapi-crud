@@ -2,7 +2,7 @@ import os
 from fastapi.staticfiles import StaticFiles
 
 from fastapi import FastAPI
-from app.routes.v1 import posts, contact, categories
+from app.routes.v1 import posts, contact, categories, content
 from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import Base, engine
 
@@ -27,9 +27,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(contact.router, prefix="/routes/v1/contact", tags=["Contact"])
-app.include_router(posts.router, prefix="/routes/v1/posts", tags=["Posts"])
+
 app.include_router(categories.router, prefix="/routes/v1/categories", tags=["Categories"])
+app.include_router(posts.router, prefix="/routes/v1/posts", tags=["Posts"])
+app.include_router(content.router, prefix="/routes/v1/content", tags=["Content"])
+app.include_router(contact.router, prefix="/routes/v1/contact", tags=["Contact"])
+
+
 
 if __name__ == '__main__':
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=False)
