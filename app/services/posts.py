@@ -20,7 +20,19 @@ def create_post(db: Session, data: PostCreate):
     )
 
     if data.categories:
-        post_instance.categories = db.query(Category).filter(Category.id.in_(data.categories)).all()
+        categories = db.query(Category).filter(Category.id.in_(data.categories)).all()
+
+        found_ids = {cat.id for cat in categories}
+        requested_ids = set(data.categories)
+
+        missing_ids = requested_ids - found_ids
+        if missing_ids:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Category with id {list(missing_ids)} not found!."
+            )
+
+        post_instance.categories = categories
 
     db.add(post_instance)
     db.commit()
