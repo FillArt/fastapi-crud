@@ -13,7 +13,14 @@ class CategoryUpdate(BaseModel):
     name: Optional[str]
 
 class CategoryCreate(CategoryBase):
-    pass
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "category_id": 888,
+                "description": "Тестовая категория",
+            }
+        }
+    )
 
 class CategoryOut(CategoryBase):
     pk_id: int
