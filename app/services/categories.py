@@ -1,9 +1,9 @@
 from fastapi import HTTPException
-from sqlalchemy import select, func
-
-from app.schemas.category import CategoryCreate, CategoryOut, CategoryUpdate
-from app.models import Category, Post
 from sqlalchemy.orm import Session
+
+from app.models import Category
+from app.schemas.category import CategoryCreate, CategoryUpdate
+
 
 def create_category(db: Session, category: CategoryCreate):
     existing = db.query(Category).filter(Category.name == category.name).first()
@@ -11,7 +11,6 @@ def create_category(db: Session, category: CategoryCreate):
         raise HTTPException(status_code=400, detail="Category already exists")
 
     db_category = Category(
-        category_id=category.category_id,
         name=category.name
     )
 
@@ -39,7 +38,7 @@ def delete_category(db: Session, id: int):
     db.commit()
     return category_queryset
 
-def update_category(db: Session, pk_id: int, data: CategoryUpdate):
+def update_category(db: Session, id: int, data: CategoryUpdate):
     category_queryset = db.query(Category).filter(Category.id == id).first()
     if not category_queryset:
         raise HTTPException(status_code=404, detail="Category not found")

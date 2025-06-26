@@ -2,6 +2,9 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, ConfigDict
 
+from app.schemas.category import CategoryOut
+
+
 class PostBase(BaseModel):
     title: str
     description: str
@@ -46,5 +49,7 @@ class PostOut(PostBase):
     image_path: Optional[str] = None
     is_published: bool
     created_at: datetime
+    categories: List[CategoryOut]
+
 
     model_config = ConfigDict(from_attributes=True)

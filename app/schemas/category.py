@@ -3,7 +3,6 @@ from pydantic import BaseModel, ConfigDict
 
 
 class CategoryBase(BaseModel):
-    category_id: int
     name: str
 
 class CategoryWithCount(CategoryBase):
@@ -16,8 +15,7 @@ class CategoryCreate(CategoryBase):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "category_id": 888,
-                "description": "Тестовая категория",
+                "name": "Тестовая категория",
             }
         }
     )

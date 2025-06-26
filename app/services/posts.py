@@ -4,7 +4,7 @@ from uuid import uuid4
 from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
-from app.models import Post
+from app.models import Post, Category
 from app.schemas.posts import PostCreate, PostUpdate, PostContentStatus
 from app.services.content import delete_all_post_content
 
@@ -17,8 +17,10 @@ def create_post(db: Session, data: PostCreate):
         title=data.title,
         description=data.description,
         image_path=getattr(data, "image_path", None),
-        categories=data.categories or []
     )
+
+    if data.categories:
+        post_instance.categories = db.query(Category).filter(Category.id.in_(data.categories)).all()
 
     db.add(post_instance)
     db.commit()
