@@ -37,9 +37,14 @@ class PostUpdate(BaseModel):
     )
 
 
+class PostContentStatus(BaseModel):
+    is_published: bool
+
+
 class PostOut(PostBase):
     pk_id: int
     image_path: Optional[str] = None
+    is_published: bool
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

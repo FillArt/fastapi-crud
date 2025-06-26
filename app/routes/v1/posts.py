@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.schemas import PostCreate
-from app.schemas.posts import PostOut, PostUpdate
-from app.services.posts import get_posts, create_post, get_post, delete_post, update_post, picture_upload
+from app.schemas.posts import PostOut, PostUpdate, PostContentStatus
+from app.services.posts import get_posts, create_post, get_post, delete_post, update_post, picture_upload, change_status
 
 router = APIRouter()
 
@@ -49,3 +49,12 @@ def update_post_by_id(pk_id: int, post: PostUpdate, db: Session = Depends(get_db
     if updated_post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     return updated_post
+
+
+@router.patch("/{pk_id}/publish", response_model=PostOut, tags=["Posts"], summary="Update status post by ID")
+def update_post_by_id(pk_id: int, post: PostContentStatus, db: Session = Depends(get_db)):
+    updated_post = change_status(db, pk_id, post)
+    if updated_post is None:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return updated_post
+

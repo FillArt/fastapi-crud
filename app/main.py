@@ -33,7 +33,5 @@ app.include_router(posts.router, prefix="/routes/v1/posts", tags=["Posts"])
 app.include_router(content.router, prefix="/routes/v1/content", tags=["Content"])
 app.include_router(contact.router, prefix="/routes/v1/contact", tags=["Contact"])
 
-
-
 if __name__ == '__main__':
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=False)
