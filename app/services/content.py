@@ -6,7 +6,7 @@ from app.schemas.content import PostContentCreate, PostContentUpdate
 
 
 def create_content(db: Session, post_id: int, content_data: PostContentCreate):
-    post = db.query(Post).filter(Post.pk_id == post_id).first()
+    post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
         return None
 
@@ -26,7 +26,7 @@ def get_content(db: Session, post_id: int):
     return db.query(PostContent).filter(PostContent.post_id == post_id).all()
 
 def get_content_one(db: Session, content_id: int):
-    return db.query(PostContent).filter(PostContent.pk_id == content_id).first()
+    return db.query(PostContent).filter(PostContent.id == content_id).first()
 
 def delete_all_post_content(db: Session, post_id: int):
     count = db.query(PostContent).filter(PostContent.post_id == post_id).delete(synchronize_session=False)
@@ -37,7 +37,7 @@ def delete_all_post_content(db: Session, post_id: int):
     return {"detail": f"Deleted {count} content block(s)"}
 
 def delete_content(db: Session, content_id: int):
-    row = db.query(PostContent).filter(PostContent.pk_id == content_id).first()
+    row = db.query(PostContent).filter(PostContent.id == content_id).first()
     if row is None:
         return None
 
@@ -46,7 +46,7 @@ def delete_content(db: Session, content_id: int):
     return row
 
 def update_content(db: Session, content_id: int, data: PostContentUpdate):
-    content_instance = db.query(PostContent).filter(PostContent.pk_id == content_id).first()
+    content_instance = db.query(PostContent).filter(PostContent.id == content_id).first()
     if not content_instance:
         return None
 

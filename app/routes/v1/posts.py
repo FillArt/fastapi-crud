@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from fastapi.params import File
 from fastapi_pagination import paginate, Page
@@ -23,39 +21,39 @@ def create_new_post(post: PostCreate, db: Session = Depends(get_db)):
     return create_post(db, post)
 
 
-@router.get("/{pk_id}", response_model=PostOut, tags=["Posts"], summary="Get post by ID")
-def read_post(pk_id: int, db: Session = Depends(get_db)):
-    post = get_post(db, pk_id)
+@router.get("/{id}", response_model=PostOut, tags=["Posts"], summary="Get post by ID")
+def read_post(id: int, db: Session = Depends(get_db)):
+    post = get_post(db, id)
 
     if post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
 
-@router.post("/{pk_id}/upload", response_model=PostOut, tags=["Posts"], summary="Upload picture for post by ID")
-async def upload_picture_by_id(pk_id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
-    return await picture_upload(db, pk_id, file)
+@router.post("/{id}/upload", response_model=PostOut, tags=["Posts"], summary="Upload picture for post by ID")
+async def upload_picture_by_id(id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    return await picture_upload(db, id, file)
 
 
-@router.delete("/{pk_id}", tags=["Posts"], summary="Delete a post by ID")
-def delete_post_by_id(pk_id: int, db: Session = Depends(get_db)):
-    post = delete_post(db, pk_id)
+@router.delete("/{id}", tags=["Posts"], summary="Delete a post by ID")
+def delete_post_by_id(id: int, db: Session = Depends(get_db)):
+    post = delete_post(db, id)
     if post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
 
-@router.patch("/{pk_id}", response_model=PostOut, tags=["Posts"], summary="Update a post by ID")
-def update_post_by_id(pk_id: int, post: PostUpdate, db: Session = Depends(get_db)):
-    updated_post = update_post(db, pk_id, post)
+@router.patch("/{id}", response_model=PostOut, tags=["Posts"], summary="Update a post by ID")
+def update_post_by_id(id: int, post: PostUpdate, db: Session = Depends(get_db)):
+    updated_post = update_post(db, id, post)
     if updated_post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     return updated_post
 
 
-@router.patch("/{pk_id}/publish", response_model=PostOut, tags=["Posts"], summary="Update status post by ID")
-def update_post_by_id(pk_id: int, post: PostContentStatus, db: Session = Depends(get_db)):
-    updated_post = change_status(db, pk_id, post)
+@router.patch("/{id}/publish", response_model=PostOut, tags=["Posts"], summary="Update status post by ID")
+def update_post_by_id(id: int, post: PostContentStatus, db: Session = Depends(get_db)):
+    updated_post = change_status(db, id, post)
     if updated_post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     return updated_post

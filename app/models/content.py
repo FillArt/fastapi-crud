@@ -15,8 +15,8 @@ class ContentType(str, enum.Enum):
 class PostContent(Base):
     __tablename__ = "post_content"
 
-    pk_id = Column(Integer, primary_key=True)
-    post_id = Column(Integer, ForeignKey("posts.pk_id"))
+    id = Column(Integer, primary_key=True)
+    post_id = Column(Integer, ForeignKey("posts.id"))
     type = Column(SqlEnum(ContentType, name="content_type_enum"), nullable=False)
     value = Column(JSONB, nullable=False)
     order = Column(Integer, nullable=False)

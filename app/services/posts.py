@@ -27,11 +27,11 @@ def create_post(db: Session, data: PostCreate):
 
 
 def get_post(db: Session, post_id: int):
-    return db.query(Post).filter(Post.pk_id == post_id).first()
+    return db.query(Post).filter(Post.id == post_id).first()
 
 
 def update_post(db: Session, post_id: int, data: PostUpdate):
-    post_instance = db.query(Post).filter(Post.pk_id == post_id).first()
+    post_instance = db.query(Post).filter(Post.id == post_id).first()
     if not post_instance:
         return None
 
@@ -44,7 +44,7 @@ def update_post(db: Session, post_id: int, data: PostUpdate):
     return post_instance
 
 def delete_post(db: Session, post_id: int):
-    post_queryset = db.query(Post).filter(Post.pk_id == post_id).first()
+    post_queryset = db.query(Post).filter(Post.id == post_id).first()
     if post_queryset:
         delete_all_post_content(db, post_id)
         db.delete(post_queryset)
@@ -53,7 +53,7 @@ def delete_post(db: Session, post_id: int):
 
 
 async def picture_upload(db: Session, post_id: int, file: UploadFile):
-    post = db.query(Post).filter(Post.pk_id == post_id).first()
+    post = db.query(Post).filter(Post.id == post_id).first()
 
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -77,7 +77,7 @@ async def picture_upload(db: Session, post_id: int, file: UploadFile):
     return post
 
 def change_status(db: Session, post_id: int, data: PostContentStatus):
-    post_instance = db.query(Post).filter(Post.pk_id == post_id).first()
+    post_instance = db.query(Post).filter(Post.id == post_id).first()
 
     if not post_instance:
         raise HTTPException(status_code=404, detail="Post not found")

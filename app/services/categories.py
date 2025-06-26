@@ -23,14 +23,14 @@ def create_category(db: Session, category: CategoryCreate):
 def get_all(db: Session):
     return db.query(Category).all()
 
-def get_post_ids_by_category(db: Session, pk_id: int):
-    category = db.query(Category).filter(Category.pk_id == pk_id).first()
+def get_post_ids_by_category(db: Session, id: int):
+    category = db.query(Category).filter(Category.id == id).first()
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
     return category
 
-def delete_category(db: Session, pk_id: int):
-    category_queryset = db.query(Category).filter(Category.pk_id == pk_id).first()
+def delete_category(db: Session, id: int):
+    category_queryset = db.query(Category).filter(Category.id == id).first()
 
     if not category_queryset:
         raise HTTPException(status_code=404, detail="Category not found")
@@ -40,7 +40,7 @@ def delete_category(db: Session, pk_id: int):
     return category_queryset
 
 def update_category(db: Session, pk_id: int, data: CategoryUpdate):
-    category_queryset = db.query(Category).filter(Category.pk_id == pk_id).first()
+    category_queryset = db.query(Category).filter(Category.id == id).first()
     if not category_queryset:
         raise HTTPException(status_code=404, detail="Category not found")
 

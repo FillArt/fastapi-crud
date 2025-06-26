@@ -18,14 +18,14 @@ async def create_category_post(category: CategoryCreate , db: Session = Depends(
 async def get_all_categories(db: Session = Depends(get_db)):
     return get_all(db)
 
-@router.delete("/{pk_id}", response_model=CategoryOut, tags=["Categories"])
-def delete_category_post(pk_id: int, db: Session = Depends(get_db)):
-    return  delete_category(db, pk_id)
+@router.delete("/{id}", response_model=CategoryOut, tags=["Categories"])
+def delete_category_post(id: int, db: Session = Depends(get_db)):
+    return  delete_category(db, id)
 
-@router.get("/{pk_id}", response_model=List[int], tags=["Categories"])
-def get_post_ids_by_category_route(pk_id: int, db: Session = Depends(get_db)):
-    return get_post_ids_by_category(db, pk_id)
+@router.get("/{id}", response_model=List[int], tags=["Categories"])
+def get_post_ids_by_category_route(id: int, db: Session = Depends(get_db)):
+    return get_post_ids_by_category(db, id)
 
-@router.patch("/{pk_id}", response_model=CategoryOut, tags=["Categories"])
-def update_category_by_id(pk_id: int, category: CategoryUpdate , db: Session = Depends(get_db)):
-    return update_category(db, pk_id, category)
+@router.patch("/{id}", response_model=CategoryOut, tags=["Categories"])
+def update_category_by_id(id: int, category: CategoryUpdate , db: Session = Depends(get_db)):
+    return update_category(db, id, category)

@@ -42,7 +42,7 @@ class PostContentStatus(BaseModel):
 
 
 class PostOut(PostBase):
-    pk_id: int
+    id: int
     image_path: Optional[str] = None
     is_published: bool
     created_at: datetime

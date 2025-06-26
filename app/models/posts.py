@@ -9,7 +9,7 @@ from app.db.database import Base
 class Post(Base):
     __tablename__ = "posts"
 
-    pk_id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
     title = Column(String, index=True)
     description = Column(String)
     categories=Column(ARRAY(Integer))
