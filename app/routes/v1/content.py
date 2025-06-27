@@ -87,7 +87,7 @@ def create_content_for_post(
     return create_content_service(db, post_id, content)
 
 
-@router.get("/{post_id}/content/", response_model=List[PostContentOut], tags=["Content"],
+@router.get("/{post_id}", response_model=List[PostContentOut], tags=["Content"],
             summary="Get all content by ID post")
 def get_content_for_post(post_id: int, db: Session = Depends(get_db)):
     return get_content_service(db, post_id)
