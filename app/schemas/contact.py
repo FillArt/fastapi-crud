@@ -14,7 +14,7 @@ class ContactCreate(BaseModel):
             "example": {
                 "name": "Имя",
                 "age": 20,
-                "email": "test@test.test",
+                "email": "artiom.filipopovschii@gmail.com",
                 "institution": "Lorem",
                 "about": "Lorem ipsum dolor sit amet",
             }
