@@ -26,7 +26,7 @@ def create_content_service(db: Session, post_id: int, content_data: PostContentC
 def get_content_service(db: Session, post_id: int):
     post_content = db.query(PostContent).filter(PostContent.post_id == post_id).all()
     if not post_content:
-        raise HTTPException(status_code=404, detail="Content not found")
+        return []
     return post_content
 
 def get_content_one_service(db: Session, content_id: int):
