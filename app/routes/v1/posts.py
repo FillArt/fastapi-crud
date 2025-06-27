@@ -10,7 +10,6 @@ from app.services.posts import get_posts_service, create_post_service, get_post_
 
 router = APIRouter()
 
-
 @router.get("/", response_model=Page[PostOut], tags=["Posts"], summary="Get all posts")
 def read_posts(db: Session = Depends(get_db)):
     return paginate(get_posts_service(db))

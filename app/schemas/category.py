@@ -10,6 +10,13 @@ class CategoryWithCount(CategoryBase):
 
 class CategoryUpdate(BaseModel):
     name: Optional[str]
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "name": "Тестовая категория",
+            }
+        }
+    )
 
 class CategoryCreate(CategoryBase):
     model_config = ConfigDict(

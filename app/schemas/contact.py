@@ -9,6 +9,18 @@ class ContactCreate(BaseModel):
     institution: Optional[str]
     about: Optional[str]
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "name": "Имя",
+                "age": 20,
+                "email": "test@test.test",
+                "institution": "Lorem",
+                "about": "Lorem ipsum dolor sit amet",
+            }
+        }
+    )
+
 class ContactRead(ContactCreate):
     id: int
     file_path: Optional[str] = None

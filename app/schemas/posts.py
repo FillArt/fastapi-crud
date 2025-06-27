@@ -19,7 +19,8 @@ class PostCreate(PostBase):
             "example": {
                 "title": "Заголовок поста",
                 "description": "Описание поста",
-                "categories": [1, 2]
+                "categories": [1, 2],
+                "author_id": 1,
             }
         }
     )
@@ -30,12 +31,14 @@ class PostUpdate(BaseModel):
     description: Optional[str] = None
     categories: Optional[List[int]] = None
     image_path: Optional[str] = None
+    author_id: Optional[int] = None
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
                 "title": "Заголовок поста",
                 "description": "Описание поста",
                 "categories": [1, 2],
+                "author_id": 1,
                 "image_path": "/path/to/image.jpg"
             }
         }
@@ -45,13 +48,12 @@ class PostUpdate(BaseModel):
 class PostContentStatus(BaseModel):
     is_published: bool
 
-
 class PostOut(PostBase):
     id: int
     image_path: Optional[str] = None
     is_published: bool
     created_at: datetime
     categories: List[CategoryOut]
-
+    author_id: int
 
     model_config = ConfigDict(from_attributes=True)

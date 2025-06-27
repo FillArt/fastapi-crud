@@ -4,7 +4,6 @@ from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.db.database import Base
-from app.models.post_categories import post_categories
 
 
 class Post(Base):
