@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, Query
 from fastapi.params import File
 from fastapi_pagination import paginate, Page
 from sqlalchemy.orm import Session
@@ -7,13 +9,18 @@ from app.db.database import get_db
 from app.schemas import PostCreate
 from app.schemas.posts import PostOut, PostUpdate, PostContentStatus
 from app.services.posts import get_posts_service, create_post_service, get_post_service, delete_post_service, \
-    update_post_service, picture_upload_service, change_status_service, update_picture_post_service
+    update_post_service, picture_upload_service, change_status_service, update_picture_post_service, \
+    get_filtered_posts_service
 
 router = APIRouter()
 
 @router.get("/", response_model=Page[PostOut], tags=["Posts"], summary="Get all posts")
-def read_posts(db: Session = Depends(get_db)):
-    return paginate(get_posts_service(db))
+def get_paginated_posts(
+    db: Session = Depends(get_db),
+    category_id: Optional[int] = Query(None),
+):
+    posts = get_filtered_posts_service(db, category_id)
+    return paginate(posts)
 
 
 @router.post("/", response_model=PostOut, tags=["Posts"], summary="Create a new post")

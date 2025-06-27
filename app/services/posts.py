@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile
@@ -12,6 +13,14 @@ from app.services.content import delete_all_post_content_service
 
 def get_posts_service(db: Session):
     return db.query(Post).all()
+
+def get_filtered_posts_service(db: Session, category_id: Optional[int] = None):
+    query = db.query(Post)
+
+    if category_id and category_id != 0:
+        query = query.join(Post.categories).filter(Category.id == category_id)
+
+    return query.all()
 
 def create_post_service(db: Session, data: PostCreate):
     author = db.query(Author).filter(Author.id == data.author_id).first()
