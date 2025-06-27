@@ -1,9 +1,11 @@
-from fastapi import HTTPException
+import os
+from uuid import uuid4
+
+from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from app.models import Author
 from app.schemas import AuthorCreate, AuthorUpdate
-
 
 def create_author_service(db: Session, author: AuthorCreate):
     db_author = Author(
@@ -49,6 +51,30 @@ def update_author_service(db: Session, id: int, data: AuthorUpdate):
     for key, value in update_data.items():
         setattr(author_queryset, key, value)
 
+    db.commit()
+    db.refresh(author_queryset)
+    return author_queryset
+
+
+async def upload_author_photo_service(db: Session, id: int, file: UploadFile):
+    author_queryset = db.query(Author).filter(Author.id == id).first()
+
+    if not author_queryset:
+        raise HTTPException(status_code=404, detail="Author not found")
+
+    static_dir = os.path.join(os.getcwd(), "static/author")
+    os.makedirs(static_dir, exist_ok=True)
+
+    ext = os.path.splitext(file.filename)[1]
+    unique_filename = f"{uuid4().hex}{ext}"
+
+    full_path = os.path.join(static_dir, unique_filename)
+    relative_path = f"static/author/{unique_filename}"
+
+    with open(full_path, "wb") as f:
+        f.write(await file.read())
+
+    author_queryset.avatar_path = relative_path
     db.commit()
     db.refresh(author_queryset)
     return author_queryset

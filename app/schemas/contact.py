@@ -1,7 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel, EmailStr, ConfigDict
 
-
 class ContactCreate(BaseModel):
     name: str
     age: int

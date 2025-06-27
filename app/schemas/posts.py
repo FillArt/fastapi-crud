@@ -4,12 +4,10 @@ from pydantic import BaseModel, ConfigDict
 
 from app.schemas.category import CategoryOut
 
-
 class PostBase(BaseModel):
     title: str
     description: str
     categories: Optional[List[int]] = None
-
 
 class PostCreate(PostBase):
     author_id: int

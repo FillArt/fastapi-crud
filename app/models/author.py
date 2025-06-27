@@ -9,3 +9,4 @@ class Author(Base):
     last_name = Column(String, nullable=False)
     middle_name = Column(String, nullable=True)
     profession = Column(String, nullable=True)
+    avatar_path = Column(String, nullable=True)

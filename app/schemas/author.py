@@ -42,5 +42,6 @@ class AuthorUpdate(BaseModel):
 
 class AuthorOut(AuthorBase):
     id: int
+    avatar_path: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
