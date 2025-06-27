@@ -22,6 +22,7 @@ def create_post_service(db: Session, data: PostCreate):
         title=data.title,
         description=data.description,
         image_path=getattr(data, "image_path", None),
+        author_id=data.author_id
     )
 
     if data.categories:

@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 
 from app.db.database import Base
 
@@ -13,10 +13,9 @@ class Post(Base):
     title = Column(String, index=True)
     description = Column(String)
     categories = relationship("Category", secondary="post_categories", back_populates="posts")
-    author_id = Column(Integer, ForeignKey("authors.id"), nullable=False)
+    author_id = Column(Integer, ForeignKey("authors.id", ondelete="CASCADE"), nullable=False)
     is_published = Column(Boolean, default=False, nullable=False)
     image_path = Column(String)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
-
-    author = relationship("Author", backref="posts")
+    author = relationship("Author", backref=backref("posts", cascade="all, delete"))

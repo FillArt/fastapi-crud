@@ -9,7 +9,6 @@ class TextValue(BaseModel):
 class TitleValue(BaseModel):
     title: str
 
-
 class QuoteValue(BaseModel):
     content: str
     author: Optional[str] = None
