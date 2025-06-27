@@ -69,6 +69,15 @@ def delete_post_service(db: Session, post_id: int):
     post_queryset = db.query(Post).filter(Post.id == post_id).first()
     if post_queryset is None:
         raise HTTPException(status_code=404, detail="Post not found")
+
+    if post_queryset.image_path:
+        image_full_path = os.path.join(os.getcwd(), post_queryset.image_path)
+        if os.path.exists(image_full_path):
+            try:
+                os.remove(image_full_path)
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Failed to delete image: {str(e)}")
+
     if post_queryset:
         delete_all_post_content_service(db, post_id)
         db.delete(post_queryset)

@@ -37,8 +37,8 @@ def get_content_one_service(db: Session, content_id: int):
 
 def delete_all_post_content_service(db: Session, post_id: int):
     count = db.query(PostContent).filter(PostContent.post_id == post_id).delete(synchronize_session=False)
-    if count == 0:
-        raise HTTPException(status_code=404, detail="No content found for this post")
+    # if count == 0:
+    #     raise HTTPException(status_code=404, detail="No content found for this post")
 
     db.commit()
     return {"detail": f"Deleted {count} content block(s)"}
