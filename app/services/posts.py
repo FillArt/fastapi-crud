@@ -123,3 +123,34 @@ def change_status_service(db: Session, post_id: int, data: PostContentStatus):
     db.refresh(post_instance)
     return post_instance
 
+
+async def update_picture_post_service(db: Session, post_id: int, file: UploadFile):
+    post = db.query(Post).filter(Post.id == post_id).first()
+
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    if post.image_path:
+        old_avatar_path = os.path.join(os.getcwd(), post.image_path)
+        if os.path.isfile(old_avatar_path):
+            try:
+                os.remove(old_avatar_path)
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Failed to delete old avatar: {str(e)}")
+
+    static_dir = os.path.join(os.getcwd(), "static/blog")
+    os.makedirs(static_dir, exist_ok=True)
+
+    ext = os.path.splitext(file.filename)[1]
+    unique_filename = f"{uuid4().hex}{ext}"
+    full_path = os.path.join(static_dir, unique_filename)
+    relative_path = f"static/blog/{unique_filename}"
+
+    with open(full_path, "wb") as f:
+        f.write(await file.read())
+
+    post.image_path = relative_path
+    db.commit()
+    db.refresh(post)
+
+    return post

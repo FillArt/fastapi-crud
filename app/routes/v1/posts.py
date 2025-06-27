@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas import PostCreate
 from app.schemas.posts import PostOut, PostUpdate, PostContentStatus
-from app.services.posts import get_posts_service, create_post_service, get_post_service, delete_post_service, update_post_service, picture_upload_service, change_status_service
+from app.services.posts import get_posts_service, create_post_service, get_post_service, delete_post_service, \
+    update_post_service, picture_upload_service, change_status_service, update_picture_post_service
 
 router = APIRouter()
 
@@ -41,3 +42,6 @@ def update_post_by_id(id: int, post: PostUpdate, db: Session = Depends(get_db)):
 def update_status_by_id(id: int, post: PostContentStatus, db: Session = Depends(get_db)):
     return change_status_service(db, id, post)
 
+@router.patch("/{id}/upload", response_model=PostOut, tags=["Posts"], summary="Update picture for post by ID")
+async def update_picture_by_id(id: int, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    return await update_picture_post_service(db, id, file)
