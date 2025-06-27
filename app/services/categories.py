@@ -1,7 +1,9 @@
 from fastapi import HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models import Category
+from app.models.post_categories import post_categories
 from app.schemas.category import CategoryCreate, CategoryUpdate
 
 
@@ -52,3 +54,23 @@ def update_category_service(db: Session, id: int, data: CategoryUpdate):
     db.refresh(category_queryset)
     return category_queryset
 
+def get_categories_with_post_count(db: Session):
+    result = (
+        db.query(
+            Category.id,
+            Category.name,
+            func.count(post_categories.c.post_id).label("post_count")
+        )
+        .outerjoin(post_categories, Category.id == post_categories.c.category_id)
+        .group_by(Category.id)
+        .all()
+    )
+
+    return [
+        {
+            "id": row.id,
+            "name": row.name,
+            "post_count": row.post_count
+        }
+        for row in result
+    ]

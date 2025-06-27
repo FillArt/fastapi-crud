@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.category import CategoryOut, CategoryCreate, CategoryWithCount, CategoryUpdate
 from app.services.categories import get_all_service, delete_category_service, get_post_ids_by_category_service, \
-    update_category_service, create_category_service
+    update_category_service, create_category_service, get_categories_with_post_count
 
 router = APIRouter()
 
@@ -17,9 +17,9 @@ async def create_category_post(category: CategoryCreate, db: Session = Depends(g
     return create_category_service(db, category)
 
 
-@router.get("/", response_model=List[CategoryOut], tags=["Categories"])
+@router.get("/", response_model=List[CategoryWithCount], tags=["Categories"])
 async def get_all_categories(db: Session = Depends(get_db)):
-    return get_all_service(db)
+    return get_categories_with_post_count(db)
 
 
 @router.delete("/{id}", response_model=CategoryOut, tags=["Categories"])

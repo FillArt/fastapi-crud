@@ -27,6 +27,12 @@ class CategoryCreate(CategoryBase):
         }
     )
 
+class CategoryWithCount(CategoryBase):
+    id: int
+    post_count: int
+
+    model_config = ConfigDict(from_attributes=True)
+
 class CategoryOut(CategoryBase):
     id: int
 
