@@ -13,20 +13,26 @@ MAX_FILE_SIZE_MB = 5
 MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024
 
 
-def contact_create(db: Session, request: ContactCreate):
+def contact_create_service(db: Session, request: ContactCreate):
     contact_instance = Contact(**request.dict())
     db.add(contact_instance)
     db.commit()
     db.refresh(contact_instance)
     return contact_instance
 
-def get_all_contacts(db: Session):
-    return db.query(Contact).all()
+def get_all_contacts_service(db: Session):
+    contacts = db.query(Contact).all()
+    if contacts is None:
+        raise HTTPException(status_code=404, detail="No contacts found")
+    return contacts
 
-def get_by_id(contact_id: int, db: Session):
-    return db.get(Contact, contact_id)
+def get_by_id_service(contact_id: int, db: Session):
+    contact = db.get(Contact, contact_id)
+    if contact is None:
+        raise HTTPException(status_code=404, detail="No contact found")
+    return contact
 
-async def contact_upload(db: Session, contact_id: int, file: UploadFile):
+async def contact_upload_service(db: Session, contact_id: int, file: UploadFile):
     contact = db.get(Contact, contact_id)
     contents = await file.read()
 

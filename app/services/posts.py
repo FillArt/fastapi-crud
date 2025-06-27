@@ -5,14 +5,19 @@ from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from app.models import Post, Category
+from app.models.author import Author
 from app.schemas.posts import PostCreate, PostUpdate, PostContentStatus
-from app.services.content import delete_all_post_content
+from app.services.content import delete_all_post_content_service
 
 
-def get_posts(db: Session):
+def get_posts_service(db: Session):
     return db.query(Post).all()
 
-def create_post(db: Session, data: PostCreate):
+def create_post_service(db: Session, data: PostCreate):
+    author = db.query(Author).filter(Author.id == data.author_id).first()
+    if not author:
+        raise HTTPException(status_code=404, detail="Автор не найден")
+
     post_instance = Post(
         title=data.title,
         description=data.description,
@@ -40,14 +45,16 @@ def create_post(db: Session, data: PostCreate):
     return post_instance
 
 
-def get_post(db: Session, post_id: int):
-    return db.query(Post).filter(Post.id == post_id).first()
+def get_post_service(db: Session, post_id: int):
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if post is None:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return post
 
-
-def update_post(db: Session, post_id: int, data: PostUpdate):
+def update_post_service(db: Session, post_id: int, data: PostUpdate):
     post_instance = db.query(Post).filter(Post.id == post_id).first()
     if not post_instance:
-        return None
+        raise HTTPException(status_code=404, detail="Post not found")
 
     update_data = data.model_dump(exclude_unset=True)
     for key, value in update_data.items():
@@ -57,16 +64,18 @@ def update_post(db: Session, post_id: int, data: PostUpdate):
     db.refresh(post_instance)
     return post_instance
 
-def delete_post(db: Session, post_id: int):
+def delete_post_service(db: Session, post_id: int):
     post_queryset = db.query(Post).filter(Post.id == post_id).first()
+    if post_queryset is None:
+        raise HTTPException(status_code=404, detail="Post not found")
     if post_queryset:
-        delete_all_post_content(db, post_id)
+        delete_all_post_content_service(db, post_id)
         db.delete(post_queryset)
         db.commit()
     return post_queryset
 
 
-async def picture_upload(db: Session, post_id: int, file: UploadFile):
+async def picture_upload_service(db: Session, post_id: int, file: UploadFile):
     post = db.query(Post).filter(Post.id == post_id).first()
 
     if not post:
@@ -90,7 +99,7 @@ async def picture_upload(db: Session, post_id: int, file: UploadFile):
 
     return post
 
-def change_status(db: Session, post_id: int, data: PostContentStatus):
+def change_status_service(db: Session, post_id: int, data: PostContentStatus):
     post_instance = db.query(Post).filter(Post.id == post_id).first()
 
     if not post_instance:

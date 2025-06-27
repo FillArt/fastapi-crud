@@ -12,6 +12,8 @@ class PostBase(BaseModel):
 
 
 class PostCreate(PostBase):
+    author_id: int
+
     model_config = ConfigDict(
         json_schema_extra={
             "example": {

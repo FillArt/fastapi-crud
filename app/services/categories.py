@@ -5,7 +5,7 @@ from app.models import Category
 from app.schemas.category import CategoryCreate, CategoryUpdate
 
 
-def create_category(db: Session, category: CategoryCreate):
+def create_category_service(db: Session, category: CategoryCreate):
     existing = db.query(Category).filter(Category.name == category.name).first()
     if existing:
         raise HTTPException(status_code=400, detail="Category already exists")
@@ -19,16 +19,16 @@ def create_category(db: Session, category: CategoryCreate):
     db.refresh(db_category)
     return db_category
 
-def get_all(db: Session):
+def get_all_service(db: Session):
     return db.query(Category).all()
 
-def get_post_ids_by_category(db: Session, id: int):
+def get_post_ids_by_category_service(db: Session, id: int):
     category = db.query(Category).filter(Category.id == id).first()
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
     return category
 
-def delete_category(db: Session, id: int):
+def delete_category_service(db: Session, id: int):
     category_queryset = db.query(Category).filter(Category.id == id).first()
 
     if not category_queryset:
@@ -38,7 +38,7 @@ def delete_category(db: Session, id: int):
     db.commit()
     return category_queryset
 
-def update_category(db: Session, id: int, data: CategoryUpdate):
+def update_category_service(db: Session, id: int, data: CategoryUpdate):
     category_queryset = db.query(Category).filter(Category.id == id).first()
     if not category_queryset:
         raise HTTPException(status_code=404, detail="Category not found")
