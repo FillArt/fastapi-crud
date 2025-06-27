@@ -36,9 +36,15 @@ def delete_author_service(db: Session, author_id: int):
     if not author_queryset:
         raise HTTPException(status_code=404, detail="Author not found")
 
+    avatar_path = author_queryset.avatar_path
+    if avatar_path:
+        avatar_full_path = os.path.join(os.getcwd(), avatar_path)
+        if os.path.exists(avatar_full_path):
+            os.remove(avatar_full_path)
+
     db.delete(author_queryset)
     db.commit()
-    db.refresh(author_queryset)
+
     return author_queryset
 
 def update_author_service(db: Session, id: int, data: AuthorUpdate):
