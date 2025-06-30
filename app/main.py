@@ -1,4 +1,6 @@
 import os
+from contextlib import asynccontextmanager
+
 from fastapi.staticfiles import StaticFiles
 
 from fastapi import FastAPI
@@ -11,9 +13,17 @@ from fastapi_pagination import add_pagination
 
 
 import uvicorn
-Base.metadata.create_all(bind=engine)
+#Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    # сюда можно добавить код на shutdown, если нужно
+
+app = FastAPI(lifespan=lifespan)
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 
