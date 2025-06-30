@@ -1,69 +1,74 @@
 from fastapi import HTTPException
-from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Category
 from app.models.post_categories import post_categories
 from app.schemas.category import CategoryCreate, CategoryUpdate
 
 
-def create_category_service(db: Session, category: CategoryCreate):
-    existing = db.query(Category).filter(Category.name == category.name).first()
+async def create_category_service(db: AsyncSession, category: CategoryCreate):
+    result = await db.execute(select(Category).where(Category.name == category.name))
+    existing = result.scalar_one_or_none()
     if existing:
         raise HTTPException(status_code=400, detail="Category already exists")
 
-    db_category = Category(
-        name=category.name
-    )
+    db_category = Category(name=category.name)
 
     db.add(db_category)
-    db.commit()
-    db.refresh(db_category)
+    await db.commit()
+    await db.refresh(db_category)
     return db_category
 
-def get_all_service(db: Session):
-    return db.query(Category).all()
 
-def get_post_ids_by_category_service(db: Session, id: int):
-    category = db.query(Category).filter(Category.id == id).first()
+async def get_all_service(db: AsyncSession):
+    result = await db.execute(select(Category))
+    return result.scalars().all()
+
+
+async def get_post_ids_by_category_service(db: AsyncSession, id: int):
+    result = await db.execute(select(Category).where(Category.id == id))
+    category = result.scalar_one_or_none()
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
     return category
 
-def delete_category_service(db: Session, id: int):
-    category_queryset = db.query(Category).filter(Category.id == id).first()
 
+async def delete_category_service(db: AsyncSession, id: int):
+    result = await db.execute(select(Category).where(Category.id == id))
+    category_queryset = result.scalar_one_or_none()
     if not category_queryset:
         raise HTTPException(status_code=404, detail="Category not found")
 
-    db.delete(category_queryset)
-    db.commit()
+    await db.delete(category_queryset)
+    await db.commit()
     return category_queryset
 
-def update_category_service(db: Session, id: int, data: CategoryUpdate):
-    category_queryset = db.query(Category).filter(Category.id == id).first()
+
+async def update_category_service(db: AsyncSession, id: int, data: CategoryUpdate):
+    result = await db.execute(select(Category).where(Category.id == id))
+    category_queryset = result.scalar_one_or_none()
     if not category_queryset:
         raise HTTPException(status_code=404, detail="Category not found")
 
     update_data = data.model_dump(exclude_unset=True)
-
     for key, value in update_data.items():
         setattr(category_queryset, key, value)
 
-    db.commit()
-    db.refresh(category_queryset)
+    await db.commit()
+    await db.refresh(category_queryset)
     return category_queryset
 
-def get_categories_with_post_count(db: Session):
-    result = (
-        db.query(
+
+async def get_categories_with_post_count(db: AsyncSession):
+    result = await db.execute(
+        select(
             Category.id,
             Category.name,
             func.count(post_categories.c.post_id).label("post_count")
         )
         .outerjoin(post_categories, Category.id == post_categories.c.category_id)
         .group_by(Category.id)
-        .all()
     )
 
     return [
@@ -72,5 +77,5 @@ def get_categories_with_post_count(db: Session):
             "name": row.name,
             "post_count": row.post_count
         }
-        for row in result
+        for row in result.all()
     ]
