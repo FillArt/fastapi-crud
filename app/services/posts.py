@@ -3,7 +3,9 @@ from typing import Optional
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
 
 from app.models import Post, Category
 from app.models.author import Author
@@ -11,19 +13,30 @@ from app.schemas.posts import PostCreate, PostUpdate, PostContentStatus
 from app.services.content import delete_all_post_content_service
 
 
-def get_posts_service(db: Session):
-    return db.query(Post).all()
+async def get_posts_service(db: AsyncSession):
+    query = select(Post).options(selectinload(Post.categories))
+    result = await db.execute(query)
+    return result.scalars().all()
 
-def get_filtered_posts_service(db: Session, category_id: Optional[int] = None):
-    query = db.query(Post)
 
+async def get_filtered_posts_service(db: AsyncSession, category_id: Optional[int] = None):
     if category_id and category_id != 0:
-        query = query.join(Post.categories).filter(Category.id == category_id)
+        query = (
+            select(Post)
+            .options(selectinload(Post.categories))
+            .join(Post.categories)
+            .filter(Category.id == category_id)
+        )
+    else:
+        query = select(Post).options(selectinload(Post.categories))
 
-    return query.all()
+    result = await db.execute(query)
+    return result.scalars().all()
 
-def create_post_service(db: Session, data: PostCreate):
-    author = db.query(Author).filter(Author.id == data.author_id).first()
+
+async def create_post_service(db: AsyncSession, data: PostCreate):
+    result = await db.execute(select(Author).filter(Author.id == data.author_id))
+    author = result.scalar_one_or_none()
     if not author:
         raise HTTPException(status_code=404, detail="Автор не найден")
 
@@ -31,15 +44,15 @@ def create_post_service(db: Session, data: PostCreate):
         title=data.title,
         description=data.description,
         image_path=getattr(data, "image_path", None),
-        author_id=data.author_id
+        author_id=data.author_id,
     )
 
     if data.categories:
-        categories = db.query(Category).filter(Category.id.in_(data.categories)).all()
+        result = await db.execute(select(Category).filter(Category.id.in_(data.categories)))
+        categories = result.scalars().all()
 
         found_ids = {cat.id for cat in categories}
         requested_ids = set(data.categories)
-
         missing_ids = requested_ids - found_ids
         if missing_ids:
             raise HTTPException(
@@ -50,19 +63,27 @@ def create_post_service(db: Session, data: PostCreate):
         post_instance.categories = categories
 
     db.add(post_instance)
-    db.commit()
-    db.refresh(post_instance)
+    await db.commit()
+    await db.refresh(post_instance)
+
+    # Грузим связи categories для корректной сериализации
+    await db.refresh(post_instance, attribute_names=["categories"])
     return post_instance
 
 
-def get_post_service(db: Session, post_id: int):
-    post = db.query(Post).filter(Post.id == post_id).first()
+async def get_post_service(db: AsyncSession, post_id: int):
+    query = select(Post).options(selectinload(Post.categories)).filter(Post.id == post_id)
+    result = await db.execute(query)
+    post = result.scalar_one_or_none()
     if post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     return post
 
-def update_post_service(db: Session, post_id: int, data: PostUpdate):
-    post_instance = db.query(Post).filter(Post.id == post_id).first()
+
+async def update_post_service(db: AsyncSession, post_id: int, data: PostUpdate):
+    query = select(Post).options(selectinload(Post.categories)).filter(Post.id == post_id)
+    result = await db.execute(query)
+    post_instance = result.scalar_one_or_none()
     if not post_instance:
         raise HTTPException(status_code=404, detail="Post not found")
 
@@ -70,12 +91,15 @@ def update_post_service(db: Session, post_id: int, data: PostUpdate):
     for key, value in update_data.items():
         setattr(post_instance, key, value)
 
-    db.commit()
-    db.refresh(post_instance)
+    await db.commit()
+    await db.refresh(post_instance)
     return post_instance
 
-def delete_post_service(db: Session, post_id: int):
-    post_queryset = db.query(Post).filter(Post.id == post_id).first()
+
+async def delete_post_service(db: AsyncSession, post_id: int):
+    query = select(Post).filter(Post.id == post_id)
+    result = await db.execute(query)
+    post_queryset = result.scalar_one_or_none()
     if post_queryset is None:
         raise HTTPException(status_code=404, detail="Post not found")
 
@@ -87,16 +111,17 @@ def delete_post_service(db: Session, post_id: int):
             except Exception as e:
                 raise HTTPException(status_code=500, detail=f"Failed to delete image: {str(e)}")
 
-    if post_queryset:
-        delete_all_post_content_service(db, post_id)
-        db.delete(post_queryset)
-        db.commit()
+    await delete_all_post_content_service(db, post_id)
+
+    await db.delete(post_queryset)
+    await db.commit()
     return post_queryset
 
 
-async def picture_upload_service(db: Session, post_id: int, file: UploadFile):
-    post = db.query(Post).filter(Post.id == post_id).first()
-
+async def picture_upload_service(db: AsyncSession, post_id: int, file: UploadFile):
+    query = select(Post).filter(Post.id == post_id)
+    result = await db.execute(query)
+    post = result.scalar_one_or_none()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
 
@@ -113,13 +138,16 @@ async def picture_upload_service(db: Session, post_id: int, file: UploadFile):
         f.write(await file.read())
 
     post.image_path = relative_path
-    db.commit()
-    db.refresh(post)
+    await db.commit()
+    await db.refresh(post)
 
     return post
 
-def change_status_service(db: Session, post_id: int, data: PostContentStatus):
-    post_instance = db.query(Post).filter(Post.id == post_id).first()
+
+async def change_status_service(db: AsyncSession, post_id: int, data: PostContentStatus):
+    query = select(Post).filter(Post.id == post_id)
+    result = await db.execute(query)
+    post_instance = result.scalar_one_or_none()
 
     if not post_instance:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -128,13 +156,15 @@ def change_status_service(db: Session, post_id: int, data: PostContentStatus):
     for key, value in update_data.items():
         setattr(post_instance, key, value)
 
-    db.commit()
-    db.refresh(post_instance)
+    await db.commit()
+    await db.refresh(post_instance)
     return post_instance
 
 
-async def update_picture_post_service(db: Session, post_id: int, file: UploadFile):
-    post = db.query(Post).filter(Post.id == post_id).first()
+async def update_picture_post_service(db: AsyncSession, post_id: int, file: UploadFile):
+    query = select(Post).filter(Post.id == post_id)
+    result = await db.execute(query)
+    post = result.scalar_one_or_none()
 
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -159,7 +189,7 @@ async def update_picture_post_service(db: Session, post_id: int, file: UploadFil
         f.write(await file.read())
 
     post.image_path = relative_path
-    db.commit()
-    db.refresh(post)
+    await db.commit()
+    await db.refresh(post)
 
     return post

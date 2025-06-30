@@ -36,7 +36,7 @@ async def delete_category_post(id: int, db: AsyncSession = Depends(get_db)):
 @router.get("/{id}", response_model=List[int], tags=["Categories"])
 async def get_post_ids_by_category_route(id: int, db: AsyncSession = Depends(get_db)):
     category = await get_post_ids_by_category_service(db, id)
-    return [post.id for post in category.posts]  # если posts связан через relationship
+    return [post.id for post in category.posts]
 
 @router.patch("/{id}", response_model=CategoryOut, tags=["Categories"])
 async def update_category_by_id(id: int, category: CategoryUpdate, db: AsyncSession = Depends(get_db)):

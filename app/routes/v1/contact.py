@@ -12,18 +12,18 @@ router = APIRouter()
 
 @router.post("/", response_model=ContactRead, tags=["Contact"], summary="Sending data from a form to the server")
 async def contact_send_data(request: ContactCreate, db: AsyncSession = Depends(get_db)):
-    return await contact_create_service(db, request)  # await!
+    return await contact_create_service(db, request)
 
 @router.get("/", response_model=List[ContactRead], tags=["Contact"], summary="Getting all contacts (for debugging)")
 async def all_contacts(db: AsyncSession = Depends(get_db)):
-    return await get_all_contacts_service(db)  # await!
+    return await get_all_contacts_service(db)
 
 @router.get("/{id}", response_model=ContactRead, tags=["Contact"], summary="Getting a specific contact")
 async def contact_by_id(id: int, db: AsyncSession = Depends(get_db)):
-    return await get_by_id_service(id, db)  # await!
+    return await get_by_id_service(id, db)
 
 @router.post("/{id}/upload")
 async def upload_contact_file(id: int,
                               file: UploadFile = File(...),
                               db: AsyncSession = Depends(get_db)):
-    return await contact_upload_service(db, id, file)  # await!
+    return await contact_upload_service(db, id, file)

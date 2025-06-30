@@ -1,13 +1,15 @@
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy import select, delete, update
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Post
 from app.models.content import PostContent
 from app.schemas.content import PostContentCreate, PostContentUpdate
 
 
-def create_content_service(db: Session, post_id: int, content_data: PostContentCreate):
-    post = db.query(Post).filter(Post.id == post_id).first()
+async def create_content_service(db: AsyncSession, post_id: int, content_data: PostContentCreate):
+    result = await db.execute(select(Post).where(Post.id == post_id))
+    post = result.scalar_one_or_none()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
 
@@ -19,41 +21,45 @@ def create_content_service(db: Session, post_id: int, content_data: PostContentC
     )
 
     db.add(new_content)
-    db.commit()
-    db.refresh(new_content)
+    await db.commit()
+    await db.refresh(new_content)
     return new_content
 
-def get_content_service(db: Session, post_id: int):
-    post_content = db.query(PostContent).filter(PostContent.post_id == post_id).all()
-    if not post_content:
-        return []
-    return post_content
 
-def get_content_one_service(db: Session, content_id: int):
-    post_content = db.query(PostContent).filter(PostContent.id == content_id).first()
-    if not post_content:
+async def get_content_service(db: AsyncSession, post_id: int):
+    result = await db.execute(select(PostContent).where(PostContent.post_id == post_id))
+    return result.scalars().all()
+
+
+async def get_content_one_service(db: AsyncSession, content_id: int):
+    result = await db.execute(select(PostContent).where(PostContent.id == content_id))
+    content = result.scalar_one_or_none()
+    if not content:
         raise HTTPException(status_code=404, detail="Content not found")
-    return post_content
+    return content
 
-def delete_all_post_content_service(db: Session, post_id: int):
-    count = db.query(PostContent).filter(PostContent.post_id == post_id).delete(synchronize_session=False)
-    # if count == 0:
-    #     raise HTTPException(status_code=404, detail="No content found for this post")
 
-    db.commit()
-    return {"detail": f"Deleted {count} content block(s)"}
+async def delete_all_post_content_service(db: AsyncSession, post_id: int):
+    stmt = delete(PostContent).where(PostContent.post_id == post_id)
+    result = await db.execute(stmt)
+    await db.commit()
+    return {"detail": f"Deleted {result.rowcount} content block(s)"}
 
-def delete_content_service(db: Session, content_id: int):
-    row = db.query(PostContent).filter(PostContent.id == content_id).first()
+
+async def delete_content_service(db: AsyncSession, content_id: int):
+    result = await db.execute(select(PostContent).where(PostContent.id == content_id))
+    row = result.scalar_one_or_none()
     if row is None:
         raise HTTPException(status_code=404, detail="Content not found")
 
-    db.delete(row)
-    db.commit()
+    await db.delete(row)
+    await db.commit()
     return row
 
-def update_content_service(db: Session, content_id: int, data: PostContentUpdate):
-    content_instance = db.query(PostContent).filter(PostContent.id == content_id).first()
+
+async def update_content_service(db: AsyncSession, content_id: int, data: PostContentUpdate):
+    result = await db.execute(select(PostContent).where(PostContent.id == content_id))
+    content_instance = result.scalar_one_or_none()
     if not content_instance:
         raise HTTPException(status_code=404, detail="Content not found")
 
@@ -61,6 +67,6 @@ def update_content_service(db: Session, content_id: int, data: PostContentUpdate
     for key, value in update_data.items():
         setattr(content_instance, key, value)
 
-    db.commit()
-    db.refresh(content_instance)
+    await db.commit()
+    await db.refresh(content_instance)
     return content_instance
