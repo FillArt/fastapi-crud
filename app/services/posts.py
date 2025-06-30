@@ -84,16 +84,36 @@ async def update_post_service(db: AsyncSession, post_id: int, data: PostUpdate):
     query = select(Post).options(selectinload(Post.categories)).filter(Post.id == post_id)
     result = await db.execute(query)
     post_instance = result.scalar_one_or_none()
+
     if not post_instance:
         raise HTTPException(status_code=404, detail="Post not found")
 
     update_data = data.model_dump(exclude_unset=True)
+
+    # Обработка categories отдельно
+    if "categories" in update_data:
+        category_ids = update_data.pop("categories")
+        result = await db.execute(select(Category).filter(Category.id.in_(category_ids)))
+        categories = result.scalars().all()
+
+        found_ids = {cat.id for cat in categories}
+        missing_ids = set(category_ids) - found_ids
+        if missing_ids:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Category with id {list(missing_ids)} not found"
+            )
+
+        post_instance.categories = categories  # ← уже ORM объекты
+
+    # Обновляем оставшиеся поля
     for key, value in update_data.items():
         setattr(post_instance, key, value)
 
     await db.commit()
-    await db.refresh(post_instance)
+    await db.refresh(post_instance, attribute_names=["categories"])
     return post_instance
+
 
 
 async def delete_post_service(db: AsyncSession, post_id: int):
@@ -141,6 +161,7 @@ async def picture_upload_service(db: AsyncSession, post_id: int, file: UploadFil
     await db.commit()
     await db.refresh(post)
 
+    await db.refresh(post, attribute_names=["categories"])
     return post
 
 
@@ -157,7 +178,7 @@ async def change_status_service(db: AsyncSession, post_id: int, data: PostConten
         setattr(post_instance, key, value)
 
     await db.commit()
-    await db.refresh(post_instance)
+    await db.refresh(post_instance, attribute_names=["categories"])
     return post_instance
 
 
@@ -190,6 +211,6 @@ async def update_picture_post_service(db: AsyncSession, post_id: int, file: Uplo
 
     post.image_path = relative_path
     await db.commit()
-    await db.refresh(post)
+    await db.refresh(post, attribute_names=["categories"])
 
     return post

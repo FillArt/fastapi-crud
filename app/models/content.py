@@ -20,3 +20,6 @@ class PostContent(Base):
     type = Column(SqlEnum(ContentType, name="content_type_enum"), nullable=False)
     value = Column(JSONB, nullable=False)
     order = Column(Integer, nullable=False)
+
+    def __str__(self):
+        return f"{self.type} ({self.order})"

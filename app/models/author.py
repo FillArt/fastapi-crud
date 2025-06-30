@@ -10,3 +10,6 @@ class Author(Base):
     middle_name = Column(String, nullable=True)
     profession = Column(String, nullable=True)
     avatar_path = Column(String, nullable=True)
+
+    def __str__(self):
+        return f"{self.last_name} {self.name}"

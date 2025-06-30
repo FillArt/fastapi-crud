@@ -10,10 +10,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.db.database import Base, engine
 
 from fastapi_pagination import add_pagination
+from app.admin.views import setup_admin
 
 
 import uvicorn
-#Base.metadata.create_all(bind=engine)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -46,7 +46,9 @@ app.include_router(categories.router, prefix="/routes/v1/categories", tags=["Cat
 app.include_router(posts.router, prefix="/routes/v1/posts", tags=["Posts"])
 app.include_router(content.router, prefix="/routes/v1/content", tags=["Content"])
 app.include_router(contact.router, prefix="/routes/v1/contact", tags=["Contact"])
+
 add_pagination(app)
+setup_admin(app, engine)
 
 if __name__ == '__main__':
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=False)

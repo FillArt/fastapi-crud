@@ -19,3 +19,6 @@ class Post(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     author = relationship("Author", backref=backref("posts", cascade="all, delete"))
+
+    def __str__(self):
+        return self.title
