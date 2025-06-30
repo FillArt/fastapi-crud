@@ -1,37 +1,38 @@
 import os
 from uuid import uuid4
 
-from fastapi import HTTPException, UploadFile
-from sqlalchemy.orm import Session
+from fastapi import HTTPException, UploadFile, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from app.models import Author
 from app.schemas import AuthorCreate, AuthorUpdate
 
-def create_author_service(db: Session, author: AuthorCreate):
-    db_author = Author(
-        name=author.name,
-        last_name=author.last_name,
-        middle_name=author.middle_name,
-        profession=author.profession,
-    )
 
+async def create_author_service(db: AsyncSession, author: AuthorCreate):
+    db_author = Author(**author.dict())
     db.add(db_author)
-    db.commit()
-    db.refresh(db_author)
+    await db.commit()
+    await db.refresh(db_author)
     return db_author
 
-def get_author_service(db: Session, author_id: int):
-    db_author = db.query(Author).filter(Author.id == author_id).first()
+
+async def get_author_service(db: AsyncSession, author_id: int):
+    result = await db.execute(select(Author).where(Author.id == author_id))
+    db_author = result.scalar_one_or_none()
     if not db_author:
         raise HTTPException(status_code=404, detail="Author not found")
-
     return db_author
 
-def get_author_all_service(db: Session):
-    return db.query(Author).all()
 
-def delete_author_service(db: Session, author_id: int):
-    author_queryset = db.query(Author).filter(Author.id == author_id).first()
+async def get_author_all_service(db: AsyncSession):
+    result = await db.execute(select(Author))
+    return result.scalars().all()
+
+
+async def delete_author_service(db: AsyncSession, author_id: int):
+    result = await db.execute(select(Author).where(Author.id == author_id))
+    author_queryset = result.scalar_one_or_none()
 
     if not author_queryset:
         raise HTTPException(status_code=404, detail="Author not found")
@@ -42,13 +43,14 @@ def delete_author_service(db: Session, author_id: int):
         if os.path.exists(avatar_full_path):
             os.remove(avatar_full_path)
 
-    db.delete(author_queryset)
-    db.commit()
-
+    await db.delete(author_queryset)
+    await db.commit()
     return author_queryset
 
-def update_author_service(db: Session, id: int, data: AuthorUpdate):
-    author_queryset = db.query(Author).filter(Author.id == id).first()
+
+async def update_author_service(db: AsyncSession, id: int, data: AuthorUpdate):
+    result = await db.execute(select(Author).where(Author.id == id))
+    author_queryset = result.scalar_one_or_none()
 
     if not author_queryset:
         raise HTTPException(status_code=404, detail="Author not found")
@@ -57,13 +59,14 @@ def update_author_service(db: Session, id: int, data: AuthorUpdate):
     for key, value in update_data.items():
         setattr(author_queryset, key, value)
 
-    db.commit()
-    db.refresh(author_queryset)
+    await db.commit()
+    await db.refresh(author_queryset)
     return author_queryset
 
 
-async def upload_author_photo_service(db: Session, id: int, file: UploadFile):
-    author_queryset = db.query(Author).filter(Author.id == id).first()
+async def upload_author_photo_service(db: AsyncSession, id: int, file: UploadFile):
+    result = await db.execute(select(Author).where(Author.id == id))
+    author_queryset = result.scalar_one_or_none()
 
     if not author_queryset:
         raise HTTPException(status_code=404, detail="Author not found")
@@ -73,7 +76,6 @@ async def upload_author_photo_service(db: Session, id: int, file: UploadFile):
 
     ext = os.path.splitext(file.filename)[1]
     unique_filename = f"{uuid4().hex}{ext}"
-
     full_path = os.path.join(static_dir, unique_filename)
     relative_path = f"static/author/{unique_filename}"
 
@@ -81,12 +83,14 @@ async def upload_author_photo_service(db: Session, id: int, file: UploadFile):
         f.write(await file.read())
 
     author_queryset.avatar_path = relative_path
-    db.commit()
-    db.refresh(author_queryset)
+    await db.commit()
+    await db.refresh(author_queryset)
     return author_queryset
 
-async def update_author_photo_service(db: Session, id: int, file: UploadFile):
-    author_queryset = db.query(Author).filter(Author.id == id).first()
+
+async def update_author_photo_service(db: AsyncSession, id: int, file: UploadFile):
+    result = await db.execute(select(Author).where(Author.id == id))
+    author_queryset = result.scalar_one_or_none()
 
     if not author_queryset:
         raise HTTPException(status_code=404, detail="Author not found")
@@ -113,7 +117,6 @@ async def update_author_photo_service(db: Session, id: int, file: UploadFile):
         f.write(await file.read())
 
     author_queryset.avatar_path = relative_path
-    db.commit()
-    db.refresh(author_queryset)
-
+    await db.commit()
+    await db.refresh(author_queryset)
     return author_queryset
